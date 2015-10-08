@@ -198,7 +198,7 @@ public Action:Timer_BashCheck(Handle:timer, any:data)
 					FormatEx(sSuspectReason, sizeof(sSuspectReason), "Too many strafes over zero.");
 				}
 
-				if(GetGameType() != GameType_CSGO && (GetClientSync(client, 1) - GetClientSync(client, 0)) > 15.0){
+				if((GetClientSync(client, 1) - GetClientSync(client, 0)) > 15.0){
 					Suspected = true;
 					FormatEx(sSuspectReason, sizeof(sSuspectReason), "Sync 2 much higher than Sync 1.");
 				}
@@ -527,7 +527,7 @@ DoAutomaticBans(){
 		for(int client = 1; client <= MaxClients; client++){
 			if(IsClientConnected(client) && IsClientInGame(client) && g_Notifications[client] > 0){
 				if(g_Notifications[client] > Cvar_Bans_Amount.IntValue || g_Notifications[client] > Cvar_Bans_Amount.FloatValue){
-					GetClientAuthId(client, AuthId_Steam2, cSteamID, sizeof(cSteamID));
+					AuthId_Steam2(client, AuthId_Steam2, cSteamID, sizeof(cSteamID));
 
 					ServerCommand("sm_addban %d %s [BASH] Automated ban", Cvar_Bans_Length.IntValue, cSteamID);
 

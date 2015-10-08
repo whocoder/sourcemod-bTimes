@@ -55,9 +55,6 @@ ConVar Cvar_ChangeLogURL;
 
 public void OnPluginStart()
 {
-	if(GetGameType() != GameType_CSGO && GetGameType() != GameType_CSS)
-		SetFailState("This timer does not support this game (%d)", GetGameType());
-
 	DB_Connect();
 
 	// Cvars
@@ -569,7 +566,7 @@ CreatePlayerID(client)
 	GetClientName(client, sName, sizeof(sName));
 
 	decl String:sAuth[32];
-	GetClientAuthId(client, AuthId_Steam2, String:sAuth, sizeof(sAuth));
+	AuthId_Steam2(client, AuthId_Engine, String:sAuth, sizeof(sAuth));
 
 	new idx = FindStringInArray(g_hPlayerID, sAuth);
 	if(idx != -1)
@@ -812,7 +809,7 @@ public DB_ShowPlaytime_Callback(Handle:owner, Handle:hndl, String:error[], any:d
 					FormatPlayerTime(float(PlayTime), sTime, sizeof(sTime), false, 1);
 					SplitString(sTime, ".", sTime, sizeof(sTime));
 					FormatEx(sDisplay, sizeof(sDisplay), "#%d: %s: %s", i, sName, sTime);
-					if(GetGameType() != GameType_CSGO && ((i % 7) == 0 || i == rows))
+					if(((i % 7) == 0 || i == rows))
 						Format(sDisplay, sizeof(sDisplay), "%s\n--------------------------------------", sDisplay);
 
 					// Add item

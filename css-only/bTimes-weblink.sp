@@ -50,9 +50,6 @@ public Plugin myinfo = {
 }
 
 public void OnPluginStart(){
-	if(GetGameType() != GameType_CSGO && GetGameType() != GameType_CSS)
-		SetFailState("This timer does not support this game (%d)", GetGameType());
-
 	for(new i = 0; i < (sizeof(ServerAdvertisements)); i++){
 		ServerAdsCount++;
 	}
@@ -215,7 +212,7 @@ public Action:LeaderboardUser(client, args){
 
 		if(target && target != 0 && IsClientConnected(target)){
 			new String:clientSteamID[32];
-			GetClientAuthId(target, AuthId_Steam2, clientSteamID, sizeof(clientSteamID));
+			AuthId_Steam2(target, AuthId_Engine, clientSteamID, sizeof(clientSteamID));
 
 			Format(Leaderboard_URL, sizeof(Leaderboard_URL), "http://strafeodyssey.com/stats.php?client=game&p=user&steamid=%s", clientSteamID);
 		}else if(StrContains(arg, "STEAM_0:") != -1){

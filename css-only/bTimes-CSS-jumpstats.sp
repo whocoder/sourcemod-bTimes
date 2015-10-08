@@ -47,7 +47,7 @@ enum ReadyType
 	ReadyType_BlockBhopJump
 }
 
-new String:JumpName[JumpType][128] =
+new String:JumpName[JumpType][128] = 
 {
 	"None",
 	"LongJump",
@@ -94,7 +94,7 @@ new bool:g_bLJpopup[MAXPLAYERS + 1];
 *       Block Jump        *
 **************************/
 
-new Handle:h_LJBlockMenu = INVALID_HANDLE;
+new Handle:h_LJBlockMenu = INVALID_HANDLE;       
 new bool:g_bLJBlock[MAXPLAYERS + 1];
 new Float:g_fBlockHeight[MAXPLAYERS + 1];
 new Float:g_EdgeVector[MAXPLAYERS + 1][3];
@@ -175,7 +175,7 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max){
 }
 public OnPluginStart(){
 	CreateConVar("sm_ljstats_version", VERSION, "LJStats - justshoot, cam", FCVAR_PLUGIN|FCVAR_NOTIFY);
-
+	
 	RegAdminCmd("sm_ljstats", Command_LJAdmin, ADMFLAG_ROOT, "Delete Record");
 	RegConsoleCmd("sm_lj", Command_ToggleLJ, "Record Jump Stats");
 	RegConsoleCmd("sm_ljblock", Command_LJBlock, "Register Destination");
@@ -183,12 +183,12 @@ public OnPluginStart(){
 	RegConsoleCmd("sm_ljpopup", Command_ljpopup, "Show/hide stats popup.");
 	RegConsoleCmd("sm_gap", Command_MeasureGap, "Measure units between 2 points");
 	RegConsoleCmd("sm_ljtop", Command_LJTop, "show ljstats top ranks");
-
-
+	
+	
 	HookEvent("player_jump", Event_PlayerJump); //When players jumped
 	HookEvent("round_start", Event_RoundStart);
-
-
+	
+	
 	Cvar_Show_Message 		= CreateConVar("timer_ljstats_show_msg", "0", "0:All, 1:only for lj", FCVAR_PLUGIN);
 	Cvar_DB 					= CreateConVar("timer_ljstats_db_name", "timer", "Database name, SQLite/MySQL", FCVAR_PLUGIN);
 	Cvar_Invalid_Jump 		= CreateConVar("timer_ljstats_invalid_lj", "280.0", "Cancel Jump if PRESTRAFE and DISTANCE is over this value.", FCVAR_PLUGIN);
@@ -207,16 +207,16 @@ public OnPluginStart(){
 	Cvar_Sound[2] 			= CreateConVar("timer_ljstats_snd_wickedsick", "265.0", "Play Sound - wickedsick.", FCVAR_PLUGIN);
 	Cvar_Sound[3] 			= CreateConVar("timer_ljstats_snd_godlick", "268.0", "Play Sound - godlike.", FCVAR_PLUGIN);
 	Cvar_Sound[4] 			= CreateConVar("timer_ljstats_snd_holyshit", "270.0", "Play Sound - holyshit.", FCVAR_PLUGIN);
-
-
+	
+	
 	for(new i = 0; i < sizeof(g_Sound); i++)
 	{
 		HookConVarChange(Cvar_Sound[i], ConVarChanged);
 	}
-
+	
 	AutoExecConfig(true, "jumpstats", "timer");
 	CreateTopMenu();
-
+	
 	if(g_bLateLoaded){
 		OnAutoConfigsBuffered();
 		FindNHookWalls();
@@ -229,7 +229,7 @@ public OnPluginStart(){
 			}
 		}
 	}
-
+	
 	//LoadPhysics();
 	//LoadTimerSettings();
 }
@@ -266,7 +266,7 @@ public OnMapStart()
 	}
 	g_Beam[0] = PrecacheModel("materials/sprites/light_glow02.vmt");
 	g_Beam[1] = PrecacheModel("materials/sprites/laserbeam.vmt");
-
+	
 	////LoadPhysics();
 	////LoadTimerSettings();
 }
@@ -275,7 +275,7 @@ public OnClientPutInServer(client){
 	g_bLJBlock[client] = false;
 	g_bLJpopup[client] = true;
 	g_bLJplaysnd[client] = true;
-
+	
 	if(GetClientSettings(client) & JUMP_STATS)
 		SetClientSettings(client, GetClientSettings(client) & ~JUMP_STATS);
 }
@@ -366,17 +366,17 @@ FindNHookWalls()
 	also it may work just with StartTouch not Touch(haven't tried)**/
 	SDKHook(0,SDKHook_Touch,Touch_Wall);//World entity
 	new ent = -1;
-	while((ent = FindEntityByClassname(ent,"func_breakable")) != -1)
+	while((ent = FindEntityByClassname(ent,"func_breakable")) != -1) 
 	{
 		SDKHook(ent,SDKHook_Touch,Touch_Wall);
 	}
 	ent = -1;
-	while((ent = FindEntityByClassname(ent,"func_illusionary")) != -1)
+	while((ent = FindEntityByClassname(ent,"func_illusionary")) != -1) 
 	{
 		SDKHook(ent,SDKHook_Touch,Touch_Wall);
 	}
 	ent = -1;
-	while((ent = FindEntityByClassname(ent,"func_wall")) != -1)
+	while((ent = FindEntityByClassname(ent,"func_wall")) != -1) 
 	{
 		SDKHook(ent,SDKHook_Touch,Touch_Wall);
 	}
@@ -538,7 +538,7 @@ CalculateBlockGap(client, Float:origin[3], Float:target[3])
 	position[1] += 90.0;
 	GetBeamHitOrigin(Edge[0], position, Edge[1]);
 	TE_SetupBeamPoints(Edge[0], Edge[1], g_Beam[0], 0, 0, 0, 10.0, 1.0, 1.0, 10, 0.0, {0,255,255,212}, 0);
-	TE_SendToAll();
+	TE_SendToAll();	
 	distance = GetVectorDistance(Edge[0], Edge[1]);
 	g_BlockDist[client] = RoundToNearest(distance);
 	if(g_BlockDist[client] >= Cvar_Stop_Block_LJ.FloatValue)
@@ -652,7 +652,7 @@ stock CalculateBlockGap2(client, Float:origin[2][3], Float:target[2][3])
 			g_BlockDist[client] = RoundToNearest(GetVectorDistance(temp[0], temp[1]));
 		}
 	}
-
+	
 	if(g_BlockDist[client] >= Cvar_Stop_Block_LJ.FloatValue)
 	{
 		PrintToChat(client, "\x01[\x05LJstats\x01]\x03%d Unit Block registered (\x01�\x03)", g_BlockDist[client]);
@@ -687,7 +687,7 @@ CorrectEdgePoint(client)
 
 public Action:Command_ToggleLJ(client, args){
 	SetClientSettings(client, (GetClientSettings(client) ^ JUMP_STATS));
-
+	
 	if(GetClientSettings(client) & JUMP_STATS)
 		PrintColorText(client, "\x01[\x05LJstats\x01]\x03 Longjump stats \x01enabled\x03.");
 	else
@@ -828,7 +828,7 @@ public Action:Draw_Aim(Handle:timer, any:client)
 	{
 		return Plugin_Stop;
 	}
-}
+}	
 public Action:Reset_Drawing_Aim(Handle:timer, any:client)
 {
 	if(AimHandle[client]!=INVALID_HANDLE)
@@ -918,7 +918,7 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
 								PlayerReadyType[client] = ReadyType_BlockLongJump;
 							}
 						}
-
+						
 						Client_PrintHintText(client, "Prestrafe\n%.2f%s", newvelo, edgeinfo);
 						for (new i = 1; i <= MaxClients; i++)
 						{
@@ -930,13 +930,13 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
 									if(iObserverMode == SPECMODE_FIRSTPERSON || iObserverMode == SPECMODE_3RDPERSON)
 									{
 										new target = GetEntPropEnt(i, Prop_Send, "m_hObserverTarget");
-
+										
 										if(target != client || target == i)
 											continue;
-
+										
 										if(target <= 0 || target > MaxClients)
 											continue;
-
+										
 										Client_PrintHintText(i, "Prestrafe\n%.2f%s", newvelo, edgeinfo);
 									}
 									else
@@ -1114,7 +1114,7 @@ StartJumpStats(client, JumpType:type, Float:pos[3], Float:vel)
 	}
 
 	Client_PrintHintText(client, msg);
-
+	
 	for (new i = 1; i <= MaxClients; i++)
 	{
 		if (IsClientInGame(i))
@@ -1125,13 +1125,13 @@ StartJumpStats(client, JumpType:type, Float:pos[3], Float:vel)
 				if(iObserverMode == SPECMODE_FIRSTPERSON || iObserverMode == SPECMODE_3RDPERSON)
 				{
 					new target = GetEntPropEnt(i, Prop_Send, "m_hObserverTarget");
-
+					
 					if(target != client || target == i)
 						continue;
-
+					
 					if(target <= 0 || target > MaxClients)
 						continue;
-
+					
 					Client_PrintHintText(i, msg);
 				}
 				else
@@ -1321,7 +1321,7 @@ public Action:LJStats(client, bool:fail)
 		Format(hint, 255, "%s%s\n [Distance] %.2f\n [PreStrafe] %.2f\n [Strafe] %d\n [MaxSpeed] %.2f\n [Sync] %.2f",JumpName[J_type], postfix, distance, PreStrafe[client], g_Strafe[client], LJ_MaxSpeed[client], LJ_SyncRate[client]);
 		Format(cns, 1024, "%s%s Distance : %.2f, PreStrafe : %.2f Strafe : %d, MaxSpeed : %.2f, Sync : %.2f%s",JumpName[J_type], postfix, distance, PreStrafe[client], g_Strafe[client], LJ_MaxSpeed[client], LJ_SyncRate[client], edge);
 	}
-
+	
 	Client_PrintKeyHintText(client, hint);
 	for (new i = 1; i <= MaxClients; i++)
 	{
@@ -1333,13 +1333,13 @@ public Action:LJStats(client, bool:fail)
 				if(iObserverMode == SPECMODE_FIRSTPERSON || iObserverMode == SPECMODE_3RDPERSON)
 				{
 					new target = GetEntPropEnt(i, Prop_Send, "m_hObserverTarget");
-
+					
 					if(target != client || target == i)
 						continue;
-
+					
 					if(target <= 0 || target > MaxClients)
 						continue;
-
+					
 					Client_PrintKeyHintText(i, hint);
 				}
 				else
@@ -1374,7 +1374,7 @@ public Action:LJStats(client, bool:fail)
 			FormatTime_LJ(LJ_Lost[client][i], lose, 50, false);
 			FormatTime_LJ(LJ_SyncRateStrafe[client][i], sync, 50, false);
 			FormatTime_LJ(LJ_FrameRate[i], framerate, 50, false);
-			Format(cns, 1024, "%s\n   %s     %s  %s %s %s %s", cns, num, max, gain, lose, framerate, sync);
+			Format(cns, 1024, "%s\n   %s     %s  %s %s %s %s", cns, num, max, gain, lose, framerate, sync);	
 		}
 	}
 	if(NoDucking[client])
@@ -1403,9 +1403,9 @@ public Action:LJStats(client, bool:fail)
 				if((obTarget > 0)&&(obTarget==client))
 				{
 					DisplayMenu(menu, g, MENU_TIME_FOREVER);
-
+					
 					Client_PrintKeyHintText(g, hint);
-
+					
 					PrintToConsole(g, cns);
 					PrintToConsole(g, "     ");
 				}
@@ -1453,7 +1453,7 @@ public Action:LJStats(client, bool:fail)
 			PrintToChatLJ("\x04[\x05%s\x04]\x03%N - \x01%.3f\x04units!",JumpName[J_type],client,distance);
 		}
 	}
-
+	
 	if(distance >= Cvar_DB_Record.FloatValue)
 	{
 		if(IsValidType(J_type))
@@ -1474,7 +1474,7 @@ public Action:LJStats(client, bool:fail)
 			}
 		}
 	}
-
+	
 	return Plugin_Continue;
 }
 public emptyhandler(Handle:menu, MenuAction:action, client, select)
@@ -1616,7 +1616,7 @@ RecordQuery(client, JumpType:type, Float:distance, Float:pre, strafe)
 		decl String:query[512], String:steamid[64], String:temp[64], String:name[64];
 		GetClientName(client, temp, sizeof(temp));
 		SQL_EscapeString(maindb, temp, name, sizeof(name));
-		GetClientAuthId(client, AuthId_Steam2, steamid, sizeof(steamid));
+		AuthId_Steam2(client, AuthId_Engine, steamid, sizeof(steamid));
 		Format(query, sizeof(query), "SELECT distance FROM ljstats WHERE steamid = %s AND type = %d", steamid, type);
 		new Handle:datapack = CreateDataPack();
 		WritePackString(datapack, steamid);
@@ -1781,7 +1781,7 @@ Query_GetTop(client, JumpType:type, bool:adm)
 		WritePackCell(datapack, _:type);
 		Format(query, sizeof(query), "SELECT id, name, distance, pre, strafe FROM ljstats WHERE type = %d ORDER BY distance DESC LIMIT 10", type);
 		if(!adm)
-		{
+		{			
 			SQL_TQuery(maindb, query_toplist_menu, query, datapack);
 		}
 		else

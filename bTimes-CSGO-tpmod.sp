@@ -29,7 +29,7 @@ public void OnPluginStart(){
 	RegConsoleCmdEx("sm_brokenteles", SM_BrokenTeles, "Toggles between broken and server default teleports.");
 	RegConsoleCmdEx("sm_telemod", SM_BrokenTeles, "Toggles between broken and server default teleports.");
 	RegConsoleCmdEx("sm_tpmod", SM_BrokenTeles, "Toggles between broken and server default teleports.");
-	
+
 	Handle hGameData = LoadGameConfigFile("sdktools.games");
 	if(hGameData == INVALID_HANDLE)
 		SetFailState("TPMod - Missing SDKTools gamedata.");
@@ -45,7 +45,7 @@ public void OnPluginStart(){
 	DHookAddParam(g_hTeleport, HookParamType_VectorPtr);
 	DHookAddParam(g_hTeleport, HookParamType_ObjectPtr);
 	DHookAddParam(g_hTeleport, HookParamType_VectorPtr);
-	
+
 	if(GetGameType() == GameType_CSGO)
 		DHookAddParam(g_hTeleport, HookParamType_Bool); // CS:GO only
 
@@ -55,7 +55,7 @@ public void OnPluginStart(){
 			OnClientPutInServer(i);
 		}
 	}
-	
+
 	if(g_bLatedLoaded)
 		PrintToServer("TPMod - Late loaded successfully.");
 }
@@ -77,18 +77,18 @@ public MRESReturn Hook_DHooks_Teleport(int client, Handle hParams){
 				GetClientEyeAngles(client, oldAngles);
 				for(int i=0;i<3;i++)
 					DHookSetParamObjectPtrVar(hParams, 2, i*4, ObjectValueType_Float, oldAngles[i]);
-				
+
 				return MRES_Handled;
 			}
 		}
 	}
-	
+
 	return MRES_Ignored;
 }
 
 public Action SM_BrokenTeles(int client, int args){
 	SetClientSettings(client, GetClientSettings(client) ^ BROKEN_TELES);
-	
+
 	if(GetClientSettings(client) & BROKEN_TELES)
 		PrintColorText(client, "%s%sBroken teleports are now %senabled%s.",
 			g_msg_start,
@@ -101,7 +101,7 @@ public Action SM_BrokenTeles(int client, int args){
 			g_msg_textcol,
 			g_msg_varcol,
 			g_msg_textcol);
-	
+
 	return Plugin_Handled;
 }
 

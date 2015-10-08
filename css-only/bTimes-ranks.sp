@@ -70,9 +70,6 @@ new	g_RecalcTotal,
 	g_RecalcProgress;
 
 public OnPluginStart(){
-	if(GetGameType() != GameType_CSGO && GetGameType() != GameType_CSS)
-		SetFailState("This timer does not support this game (%d)", GetGameType());
-
 	// Connect to the database
 	DB_Connect();
 
@@ -282,8 +279,7 @@ FormatTag(client, String:buffer[], maxlength){
 		FormatEx(sRandHex, sizeof(sRandHex), "\x07%02X%02X%02X", rand[0], rand[1], rand[2]);
 		ReplaceStringEx(buffer, maxlength, "{rand}", sRandHex);
 	}
-	if(GetGameType() != GameType_CSGO)
-		ReplaceString(buffer, maxlength, "{norm}", "\x01", true);
+	ReplaceString(buffer, maxlength, "{norm}", "\x01", true);
 
 	if(0 < client <= MaxClients)
 	{
@@ -298,7 +294,7 @@ GetChatName(client, String:buffer[], maxlength)
 	if((g_ClientUseCustom[client] & CC_HASCC) && (g_ClientUseCustom[client] & CC_NAME) && GetConVarBool(g_hUseCustomChat))
 	{
 		decl String:sAuth[32];
-		GetClientAuthId(client, AuthId_Steam2, sAuth, sizeof(sAuth));
+		AuthId_Steam2(client, AuthId_Engine, sAuth, sizeof(sAuth));
 
 		new idx = FindStringInArray(g_hCustomSteams, sAuth);
 		if(idx != -1)
@@ -327,7 +323,7 @@ GetChatMessage(client, String:message[], maxlength)
 	if((g_ClientUseCustom[client] & CC_HASCC) && (g_ClientUseCustom[client] & CC_MSGCOL) && GetConVarBool(g_hUseCustomChat))
 	{
 		decl String:sAuth[32];
-		GetClientAuthId(client, AuthId_Steam2, sAuth, sizeof(sAuth));
+		AuthId_Steam2(client, AuthId_Engine, sAuth, sizeof(sAuth));
 
 		new idx = FindStringInArray(g_hCustomSteams, sAuth);
 		if(idx != -1)
@@ -876,7 +872,7 @@ public Action:SM_ColoredName(client, args)
 		if(g_ClientUseCustom[client] & CC_HASCC)
 		{
 			decl String:query[512], String:sAuth[32];
-			GetClientAuthId(client, AuthId_Steam2, sAuth, sizeof(sAuth));
+			AuthId_Steam2(client, AuthId_Engine, sAuth, sizeof(sAuth));
 
 			if(args == 0)
 			{
@@ -961,7 +957,7 @@ public Action:SM_ColoredMsg(client, args)
 		if(g_ClientUseCustom[client] & CC_HASCC)
 		{
 			decl String:query[512], String:sAuth[32];
-			GetClientAuthId(client, AuthId_Steam2, sAuth, sizeof(sAuth));
+			AuthId_Steam2(client, AuthId_Engine, sAuth, sizeof(sAuth));
 
 			if(args == 0)
 			{
@@ -1041,7 +1037,7 @@ public Action:SM_Colorhelp(client, args)
 
 	char clientSteamID[32];
 	char clientCustomName[MAXLENGTH_NAME];
-	GetClientAuthId(client, AuthId_Steam2, clientSteamID, sizeof(clientSteamID));
+	AuthId_Steam2(client, AuthId_Steam2, clientSteamID, sizeof(clientSteamID));
 
 	new idx = FindStringInArray(g_hCustomSteams, clientSteamID);
 	if(idx != -1){
@@ -1068,7 +1064,7 @@ public Action:EnableCCTimer(Handle:timer){
 	for (new i = 0; i < MaxClients; i++){
 		if(i != 0 && IsClientInGame(i)){
 			decl String:cSteamID[32];
-			GetClientAuthId(i, AuthId_Steam2, cSteamID, sizeof(cSteamID));
+			AuthId_Steam2(i, AuthId_Engine, cSteamID, sizeof(cSteamID));
 			new idx = FindStringInArray(g_hCustomSteams, cSteamID);
 
 			if(CheckCommandAccess(i, "cc_donator", ADMFLAG_CUSTOM1, true) && idx == -1){
@@ -1091,7 +1087,7 @@ public Action:SM_EnableCC(client, args)
 	decl String:sArg[256];
 	GetCmdArgString(sArg, sizeof(sArg));
 
-	if(StrContains(sArg, "STEAM_0:") != -1 || (GetGameType() == GameType_CSGO && StrContains(sArg, "STEAM_1:") != -1)){
+	if(StrContains(sArg, "STEAM_0:") != -1){
 		#if defined SERVER
 			decl String:query[256];
 			FormatEx(query, sizeof(query), "SELECT User, ccuse FROM players WHERE SteamID='%s'",
@@ -1203,7 +1199,7 @@ EnableCustomChat(const String:sAuth[]){
 	{
 		if(client != 0 && IsClientInGame(client))
 		{
-			GetClientAuthId(client, AuthId_Steam2, sAuth2, sizeof(sAuth2));
+			AuthId_Steam2(client, AuthId_Engine, sAuth2, sizeof(sAuth2));
 			if(StrEqual(sAuth, sAuth2)){
 				g_ClientUseCustom[client]  = CC_HASCC|CC_MSGCOL|CC_NAME;
 
@@ -1264,7 +1260,7 @@ public Action:SM_DisableCC(client, args)
 	decl String:sArg[256];
 	GetCmdArgString(sArg, sizeof(sArg));
 
-	if(StrContains(sArg, "STEAM_0:") != -1 || (GetGameType() == GameType_CSGO && StrContains(sArg, "STEAM_1:") != -1))
+	if(StrContains(sArg, "STEAM_0:") != -1)
 	{
 		decl String:query[256];
 		FormatEx(query, sizeof(query), "SELECT User, ccuse FROM players WHERE SteamID='%s'",
@@ -1381,7 +1377,7 @@ DisableCustomChat(const String:sAuth[])
 	{
 		if(IsClientInGame(client))
 		{
-			GetClientAuthId(client, AuthId_Steam2, sAuth2, sizeof(sAuth2));
+			AuthId_Steam2(client, AuthId_Engine, sAuth2, sizeof(sAuth2));
 			if(StrEqual(sAuth, sAuth2))
 			{
 				g_ClientUseCustom[client]  = 0;
@@ -1797,7 +1793,7 @@ DB_ShowTopAllSpec(client, Type, Style)
 
 			FormatEx(sInfo, sizeof(sInfo), "%d;%d;%d", GetArrayCell(g_hRanksPlayerID[Type][Style], idx), Type, Style);
 
-			if(GetGameType() != GameType_CSGO && (((idx + 1) % 7) == 0 || (idx + 1) == iSize))
+			if((((idx + 1) % 7) == 0 || (idx + 1) == iSize))
 				Format(sDisplay, sizeof(sDisplay), "%s\n--------------------------------------", sDisplay);
 
 			AddMenuItem(menu, sInfo, sDisplay);

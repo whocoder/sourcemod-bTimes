@@ -55,9 +55,6 @@ bool g_PausedAtEnd[MAX_TYPES][MAX_STYLES];
 Handle g_hGhostCheck;
 
 public OnPluginStart(){
-	if(GetGameType() != GameType_CSGO && GetGameType() != GameType_CSS)
-		SetFailState("This timer does not support this game (%d)", GetGameType());
-
 	// Connect to the database
 	DB_Connect();
 
@@ -68,9 +65,6 @@ public OnPluginStart(){
 
 	// Events
 	HookEvent("player_changename", Event_PlayerChangeName, EventHookMode_Pre);
-	if(GetGameType() == GameType_CSGO){
-		HookEvent("game_end", Event_GameEnd, EventHookMode_Pre);
-	}
 	HookEvent("player_spawn", Event_PlayerSpawn, EventHookMode_Pre);
 
 	//HookEvent("player_spawn", Event_PlayerSpawnPre, EventHookMode_Pre);
@@ -461,8 +455,7 @@ public Action:Event_PlayerSpawn(Handle:event, const String:name[], bool:dontBroa
 						if(g_fGhostTime[Type][Style] == 0.0 || g_bGhostLoaded[Type][Style] == false){
 							return Plugin_Handled;
 						}else{
-							if(GetGameType() == GameType_CSS)
-								CreateTimer(0.1, Timer_CheckWeapons, client);
+							CreateTimer(0.1, Timer_CheckWeapons, client);
 						}
 					}
 				}
@@ -506,7 +499,7 @@ public Action:Event_PlayerSpawnPre(client){
 
 public Action:Timer_CheckWeapons(Handle:timer, any:client)
 {
-	if((0 < client <= MaxClients) && IsClientConnected(client) && IsFakeClient(client)){
+	if(client != 0 && IsClientConnected(client) && IsFakeClient(client)){
 
 		for(new Type; Type < MAX_TYPES; Type++)
 		{
@@ -523,9 +516,12 @@ public Action:Timer_CheckWeapons(Handle:timer, any:client)
 	}
 }
 ClearWeaponSlot(any client, any slot){
-	new weaponIndex;
-	if((weaponIndex = GetPlayerWeaponSlot(client, slot)) != -1)
-		RemovePlayerItem(client, weaponIndex); }
+	if(client != 0 && IsClientConnected(client)){
+		new weaponIndex;
+		if((weaponIndex = GetPlayerWeaponSlot(client, slot)) != -1)
+			RemovePlayerItem(client, weaponIndex);
+	}
+}
 
 CheckWeapons(Type, Style)
 {
@@ -660,10 +656,7 @@ public Action:GhostCheck(Handle:timer, any:data)
 
 								if(!StrEqual(sGhostname, sNewN))
 								{
-									if(GetGameType() == GameType_CSS)
-										SetClientInfo(g_Ghost[Type][Style], "name", sNewN);
-									else
-										SetClientName(g_Ghost[Type][Style], sNewN);
+									SetClientInfo(g_Ghost[Type][Style], "name", sNewN);
 								}
 							}
 
@@ -696,10 +689,7 @@ public Action:GhostCheck(Handle:timer, any:data)
 														new Float:time = GetEngineTime() - g_fStartTime[Type][Style];
 														new String:sTime[32];
 
-														if(GetGameType() == GameType_CSGO)
-															FormatPlayerTime(time, sTime, sizeof(sTime), false, 0, true);
-														else
-															FormatPlayerTime(time, sTime, sizeof(sTime), false, 0);
+														FormatPlayerTime(time, sTime, sizeof(sTime), false, 0);
 
 														decl String:sType[32];
 														decl String:sStyle[32];
@@ -728,18 +718,10 @@ public Action:GhostCheck(Handle:timer, any:data)
 																sTime,
 																RoundToFloor(GetClientVelocity(g_Ghost[Type][Style], true, true, (GetClientSettings(target) & SHOW_2DVEL) == 0)));
 														#else
-														if(GetGameType() == GameType_CSS)
 															PrintHintGameText(client, "[ Replay - %s ]\nSteam: %s\nPlayer: %s\nTime: %s\nVelo: %d",
 																sStyle,
 																sSteamID,
 																g_sGhost[Type][Style],
-																sTime,
-																RoundToFloor(GetClientVelocity(g_Ghost[Type][Style], true, true, (GetClientSettings(target) & SHOW_2DVEL) == 0)));
-														else if(GetGameType() == GameType_CSGO)
-															PrintHintGameText(client, "<strong>%s Replay</strong>\nPlayer: %s\nSteam: %s\nTime: <font color='#990033'>%s</font>		Velo: %d",
-																sStyle,
-																g_sGhost[Type][Style],
-																sSteamID,
 																sTime,
 																RoundToFloor(GetClientVelocity(g_Ghost[Type][Style], true, true, (GetClientSettings(target) & SHOW_2DVEL) == 0)));
 														#endif
@@ -1154,8 +1136,8 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
 								vAng[1] = GetArrayCell(g_hGhost[Type][Style], g_GhostFrame[Type][Style], 4);
 								buttons = GetArrayCell(g_hGhost[Type][Style], g_GhostFrame[Type][Style], 5);
 
-								if(GetGameType() == GameType_CSGO && (buttons & IN_DUCK))
-									buttons &= ~IN_DUCK;
+							//	if(GetGameType() == GameType_CSGO && (buttons & IN_DUCK))
+							//		buttons &= ~IN_DUCK;
 
 								if(GetVectorDistance(vPos, vPos2) > 50.0)
 								{
@@ -1171,7 +1153,7 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
 									TeleportEntity(g_Ghost[Type][Style], NULL_VECTOR, vAng, vVel);
 								}
 
-								if(GetEntityFlags(client) & FL_ONGROUND && GetGameType() == GameType_CSS){
+								if(GetEntityFlags(client) & FL_ONGROUND){
 									if(GetEntityMoveType(g_Ghost[Type][Style]) != MOVETYPE_WALK)
 										SetEntityMoveType(g_Ghost[Type][Style], MOVETYPE_WALK);
 								}else{

@@ -41,8 +41,6 @@ new	String:g_msg_start[128],
 new	Handle:g_hAllowCp;
 
 public OnPluginStart(){
-	if(GetGameType() != GameType_CSGO && GetGameType() != GameType_CSS)
-		SetFailState("This timer does not support this game (%d)", GetGameType());
 
 	// Cvars
 	g_hAllowCp = CreateConVar("timer_allowcp", "1", "Allows players to use the checkpoint plugin's features.", 0, true, 0.0, true, 1.0);

@@ -3,7 +3,7 @@
 ** Compatible with: Counter-Strike Source
 ** Thanks to Ian (Juan) Cammarata & #sourcemod
 **======================================*/
-
+ 
 //#define VERSION	"1.0.0.5"
 
 #define MAX_BHOPBLOCKS	1024	//max. number of door/button based bhop blocks handled in a map
@@ -13,12 +13,12 @@
 #define COLOR_DOOR		{ 0,200,0,255 }		//rgba value to color door blocks if cvar is enabled
 #define COLOR_BUTTON	{ 200,0,200,255 }	//rgba value to color button blocks if cvar is enabled
 
-
+ 
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
 #include <bTimes-core>
-
+ 
 public Plugin:myinfo = {
 	name = "[bTimes] Physics",
 	author = "cam, DaFox, petsku, Miu, Mitch",
@@ -109,7 +109,7 @@ public OnPluginStart() {
 	g_iOffs_vecOrigin = FindSendPropInfo("CBaseEntity","m_vecOrigin")
 	g_iOffs_vecMins = FindSendPropInfo("CBaseEntity","m_vecMins")
 	g_iOffs_vecMaxs = FindSendPropInfo("CBaseEntity","m_vecMaxs")
-
+	
 	if(g_bLateLoaded) {
 		OnPluginPauseChange(false)
 	}
@@ -122,7 +122,7 @@ public OnPluginPauseChange(bool:pause) {
 	g_iBhopDoorCount = 0;
 	g_iBhopButtonCount = 0;
 	FindBhopBlocks();
-
+	
 	//Fix
 	AlterBhopBlocks(true);
 	g_iBhopDoorCount = 0;
@@ -446,16 +446,16 @@ GetAbsBoundingBox(ent,Float:mins[3],Float:maxs[3]) {
 public PushTriggerStart(const String:output[], caller, activator, Float:delay){
 	if(!(1<=activator<= MaxClients ) || (caller == -1) || (!IsClientInGame(activator)) || !IsPlayerAlive(activator))
 		return;
-
+	
 	CreateTimer(0.0, PushTriggerFix, activator);
-
+	
 	return;
 }
 
 public Action:PushTriggerFix(Handle:timer, any:client){
 	decl Float:PlayerPosition[3];
 	GetClientAbsOrigin(client, PlayerPosition);
-
+	
 	PlayerPosition[2] += 10.0;
 	TeleportEntity(client, PlayerPosition, NULL_VECTOR, NULL_VECTOR);
 }
