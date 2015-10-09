@@ -856,6 +856,10 @@ LoadGhost()
 					g_GhostPlayerID[Type][Style] = StringToInt(expLine2[0]);
 					g_fGhostTime[Type][Style]    = StringToFloat(expLine2[1]);
 
+					if(g_hGhost[Type][Style] == INVALID_HANDLE){
+						g_hGhost[Type][Style] = CreateArray(6);
+					}
+
 					while(!IsEndOfFile(hFile))
 					{
 						ReadFileLine(hFile, line, sizeof(line));
