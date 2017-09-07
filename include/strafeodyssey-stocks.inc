@@ -16,7 +16,7 @@ enum {
 * @param format			String to print
 * @param ...			Formatting options
 */
-stock PrintToConsoleAll(char format[], any ...){
+stock PrintToConsoleAll(char[] format, any ...){
 	char buffer[192];
 
 	for (int i = 1; i <= MaxClients; i++){
